@@ -54,18 +54,29 @@ export default function ProjectForm() {
     const apiKey = sessionStorage.getItem("openai_api_key");
     const model = sessionStorage.getItem("openai_model") || "gpt-3.5-turbo";
 
+    console.log("Submitting form with data:", data);
+    console.log("API Key present:", !!apiKey);
+    console.log("Model being used:", model);
+
     if (!apiKey) {
+      console.error("No API key found");
       form.setError("projectTitle", {
         message: "Please set your OpenAI API key first",
       });
       return;
     }
 
-    await generateDocument({
-      apiKey,
-      model,
-      ...data,
-    });
+    try {
+      await generateDocument({
+        apiKey,
+        model,
+        ...data,
+      });
+      
+      console.log("Document generation completed");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   const handleClear = () => {
