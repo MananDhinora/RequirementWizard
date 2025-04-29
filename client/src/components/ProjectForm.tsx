@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileTextIcon } from "lucide-react";
 import { useDocumentGenerator } from "@/hooks/use-document-generator";
 
 const formSchema = z.object({
@@ -90,7 +91,7 @@ export default function ProjectForm() {
                   <FormControl>
                     <Textarea 
                       {...field} 
-                      rows={12}
+                      rows={10}
                       placeholder="Describe your project requirements, goals, target users, key features, constraints, etc." 
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                     />
@@ -101,8 +102,9 @@ export default function ProjectForm() {
             />
             
             <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 sm:justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="bg-gray-200 rounded-md p-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="bg-gray-100 rounded-md p-2">
+                  <span className="text-xs text-gray-500 font-medium mr-2">Format:</span>
                   <FormField
                     control={form.control}
                     name="outputFormat"
@@ -111,7 +113,7 @@ export default function ProjectForm() {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
-                        <SelectTrigger className="bg-transparent border-0 text-sm text-gray-700 focus:ring-0 focus:outline-none">
+                        <SelectTrigger className="bg-transparent border-0 text-sm text-gray-700 focus:ring-0 focus:outline-none w-28">
                           <SelectValue placeholder="Select format" />
                         </SelectTrigger>
                         <SelectContent>
@@ -124,7 +126,8 @@ export default function ProjectForm() {
                   />
                 </div>
                 
-                <div className="bg-gray-200 rounded-md p-2">
+                <div className="bg-gray-100 rounded-md p-2">
+                  <span className="text-xs text-gray-500 font-medium mr-2">Type:</span>
                   <FormField
                     control={form.control}
                     name="documentType"
@@ -133,7 +136,7 @@ export default function ProjectForm() {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
-                        <SelectTrigger className="bg-transparent border-0 text-sm text-gray-700 focus:ring-0 focus:outline-none">
+                        <SelectTrigger className="bg-transparent border-0 text-sm text-gray-700 focus:ring-0 focus:outline-none w-40">
                           <SelectValue placeholder="Select document type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -161,7 +164,7 @@ export default function ProjectForm() {
                 <Button 
                   type="submit" 
                   disabled={isGenerating}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="inline-flex items-center px-5 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   {isGenerating ? (
                     <span className="flex items-center">
@@ -172,7 +175,10 @@ export default function ProjectForm() {
                       Generating...
                     </span>
                   ) : (
-                    "Generate PRD"
+                    <span className="flex items-center">
+                      <FileTextIcon className="mr-2 h-5 w-5" />
+                      Generate PRD
+                    </span>
                   )}
                 </Button>
               </div>

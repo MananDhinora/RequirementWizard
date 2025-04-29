@@ -10,6 +10,7 @@ interface UseDocumentGeneratorReturn {
   generateDocument: (params: GenerateDocumentRequest) => Promise<void>;
   resetDocument: () => void;
   resetError: () => void;
+  updateDocument: (updatedDocument: GeneratedDocument) => void;
 }
 
 export function useDocumentGenerator(): UseDocumentGeneratorReturn {
@@ -56,6 +57,15 @@ export function useDocumentGenerator(): UseDocumentGeneratorReturn {
     setError(null);
   };
 
+  const updateDocument = (updatedDocument: GeneratedDocument) => {
+    setDocument(updatedDocument);
+    toast({
+      title: "Document updated",
+      description: "Your changes have been saved",
+      duration: 2000,
+    });
+  };
+
   return {
     document,
     isGenerating: mutation.isPending,
@@ -63,5 +73,6 @@ export function useDocumentGenerator(): UseDocumentGeneratorReturn {
     generateDocument,
     resetDocument,
     resetError,
+    updateDocument,
   };
 }
