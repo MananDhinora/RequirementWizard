@@ -21,11 +21,9 @@ export interface GeneratedDocument {
 export async function generatePRD(params: GenerateDocumentRequest): Promise<GeneratedDocument> {
   try {
     const response = await apiRequest(
+      "POST",
       "/api/generate-document",
-      {
-        method: "POST",
-        body: JSON.stringify(params)
-      }
+      params
     );
     
     const result = await response.json();
