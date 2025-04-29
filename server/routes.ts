@@ -1,8 +1,9 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import OpenAI from "openai";
+import { insertDocumentSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // OpenAI API for generating documents
@@ -30,7 +31,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { apiKey, model, projectTitle, projectDescription, outputFormat, documentType } = validationResult.data;
       
       // Initialize OpenAI client with the user's API key
-      const openai = new OpenAI({ apiKey });
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || apiKey });
       
       // Create the prompt based on document type
       let systemPrompt: string;
@@ -93,10 +94,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Extract the generated content
       const generatedContent = response.choices[0].message.content;
       
-      // Send the response
-      res.json({
-        content: generatedContent,
-      });
+      // Save the document to the database
+      try {
+        const newDocument = await storage.createDocument({
+          title: projectTitle,
+          content: generatedContent || "",
+          format: outputFormat,
+          documentType: documentType,
+        });
+        
+        // Send the response with document ID
+        res.json({
+          id: newDocument.id,
+          content: generatedContent,
+        });
+      } catch (dbError) {
+        console.error("Error saving document to database:", dbError);
+        // Still return the content even if DB save fails
+        res.json({
+          content: generatedContent,
+        });
+      }
       
     } catch (error) {
       console.error("Error generating document:", error);
@@ -110,6 +128,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(500).json({ 
         message: error instanceof Error ? error.message : "Internal server error" 
+      });
+    }
+  });
+
+  // Document management API routes
+  // Get all documents
+  app.get("/api/documents", async (req: Request, res: Response) => {
+    try {
+      const documents = await storage.getAllDocuments();
+      res.json(documents);
+    } catch (error) {
+      console.error("Error retrieving documents:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Internal server error"
+      });
+    }
+  });
+
+  // Get a single document by ID
+  app.get("/api/documents/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const document = await storage.getDocument(id);
+      
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      res.json(document);
+    } catch (error) {
+      console.error("Error retrieving document:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Internal server error"
+      });
+    }
+  });
+
+  // Update a document
+  app.patch("/api/documents/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const updateSchema = insertDocumentSchema.partial();
+      const validationResult = updateSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({
+          message: "Validation error",
+          errors: validationResult.error.errors
+        });
+      }
+      
+      const updatedDocument = await storage.updateDocument(id, validationResult.data);
+      
+      if (!updatedDocument) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      res.json(updatedDocument);
+    } catch (error) {
+      console.error("Error updating document:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Internal server error"
+      });
+    }
+  });
+
+  // Delete a document
+  app.delete("/api/documents/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteDocument(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      res.json({ message: "Document deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Internal server error"
       });
     }
   });
