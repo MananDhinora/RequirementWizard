@@ -6,49 +6,40 @@ import * as schema from "./shared/schema";
 // Configure neonConfig to use websockets
 neonConfig.webSocketConstructor = ws;
 
-// Only instantiate the DB client if we're in a server context
-let pool: Pool | undefined;
-let db: ReturnType<typeof drizzle> | undefined;
-
-if (typeof window === 'undefined') {
-  // Verify database connection exists
-  if (!process.env.DATABASE_URL) {
-    throw new Error(
-      "DATABASE_URL must be set. Did you forget to provision a database?",
-    );
-  }
-
-  // Create connection pool
-  pool = new Pool({ connectionString: process.env.DATABASE_URL });
-
-  // Initialize Drizzle with our schema
-  db = drizzle({ client: pool, schema });
+// Verify database connection exists
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
 }
 
-// For SSR - only execute in server context
+// Create a pool lazily
+let pool: Pool | null = null;
+
 export function getDb() {
-  if (!db) {
-    throw new Error('Database connection not initialized');
+  if (!pool) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
   }
-  return db;
+  return drizzle({ client: pool, schema });
 }
 
-// For cleanup - used by API routes
+// For handling database cleanup
 export function closeDb() {
   if (pool) {
     pool.end();
+    pool = null;
   }
 }
 
-// For handling database cleanup on application shutdown
-if (typeof process !== 'undefined') {
+// Handle shutdown gracefully in case this is used in a server context
+if (typeof window === 'undefined') {
   process.on('SIGINT', () => {
-    if (pool) pool.end();
+    closeDb();
     process.exit(0);
   });
 
   process.on('SIGTERM', () => {
-    if (pool) pool.end();
+    closeDb();
     process.exit(0);
   });
 }

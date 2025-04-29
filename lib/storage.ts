@@ -1,7 +1,11 @@
-import { eq } from "drizzle-orm";
+import { 
+  users, type User, type InsertUser,
+  documents, type Document, type InsertDocument 
+} from "./shared/schema";
 import { getDb } from "./db";
-import { users, documents, type User, type InsertUser, type Document, type InsertDocument } from "./shared/schema";
+import { eq } from "drizzle-orm";
 
+// Expanded interface to include document CRUD operations
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
@@ -16,7 +20,9 @@ export interface IStorage {
   deleteDocument(id: string): Promise<boolean>;
 }
 
+// Database storage implementation
 export class DatabaseStorage implements IStorage {
+  // User operations
   async getUser(id: number): Promise<User | undefined> {
     const db = getDb();
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -38,37 +44,41 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // Document operations
   async getDocument(id: string): Promise<Document | undefined> {
     const db = getDb();
-    const [document] = await db.select().from(documents).where(eq(documents.id, id));
+    const [document] = await db
+      .select()
+      .from(documents)
+      .where(eq(documents.id, id));
     return document || undefined;
   }
 
   async getAllDocuments(): Promise<Document[]> {
     const db = getDb();
-    return await db.select().from(documents).orderBy(documents.createdAt);
+    return await db
+      .select()
+      .from(documents)
+      .orderBy(documents.createdAt);
   }
 
   async createDocument(document: InsertDocument): Promise<Document> {
     const db = getDb();
-    const [insertedDocument] = await db
+    const [createdDocument] = await db
       .insert(documents)
       .values(document)
       .returning();
-    return insertedDocument;
+    return createdDocument;
   }
 
   async updateDocument(id: string, document: Partial<InsertDocument>): Promise<Document | undefined> {
     const db = getDb();
     const [updatedDocument] = await db
       .update(documents)
-      .set({
-        ...document,
-        updatedAt: new Date(),
-      })
+      .set({ ...document, updatedAt: new Date() })
       .where(eq(documents.id, id))
       .returning();
-    return updatedDocument;
+    return updatedDocument || undefined;
   }
 
   async deleteDocument(id: string): Promise<boolean> {
@@ -81,5 +91,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Create a singleton instance to be used across the application
+// Export a singleton instance
 export const storage = new DatabaseStorage();
