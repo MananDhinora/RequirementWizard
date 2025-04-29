@@ -11,6 +11,7 @@ export interface GenerateDocumentRequest {
 }
 
 export interface GeneratedDocument {
+  id?: string;  // Added ID for DB persistence
   title: string;
   content: string;
   format: "markdown" | "html" | "text";
@@ -20,9 +21,11 @@ export interface GeneratedDocument {
 export async function generatePRD(params: GenerateDocumentRequest): Promise<GeneratedDocument> {
   try {
     const response = await apiRequest(
-      "POST",
       "/api/generate-document",
-      params
+      {
+        method: "POST",
+        body: JSON.stringify(params)
+      }
     );
     
     const result = await response.json();
@@ -31,6 +34,17 @@ export async function generatePRD(params: GenerateDocumentRequest): Promise<Gene
       throw new Error("Failed to generate document");
     }
     
+    // Handle response that includes document from DB
+    if (result.document) {
+      return {
+        id: result.document.id,
+        title: result.document.title || params.projectTitle,
+        content: result.content,
+        format: result.document.format || params.outputFormat
+      };
+    }
+    
+    // Fallback to legacy format
     return {
       title: params.projectTitle || "Project Requirements Document",
       content: result.content,
