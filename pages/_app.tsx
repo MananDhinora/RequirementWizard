@@ -1,31 +1,36 @@
-import { useState } from 'react';
-import type { AppProps } from 'next/app';
-import { Toaster } from '@/components/ui/toaster';
+import { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import '@/styles/globals.css';
+import { Toaster } from '@/components/ui/toaster';
+import { useState } from 'react';
+import '../styles/globals.css';
 
-// Set default fetcher for queries
-const defaultQueryFn = async ({ queryKey }: { queryKey: string[] }) => {
-  const [url] = queryKey;
-  const res = await fetch(url);
-  
-  // Handle HTTP errors
+// Create a function to handle API response errors
+async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || `Error ${res.status}`);
+    // Attempt to parse error response
+    const errorData = await res.json().catch(() => null);
+    throw new Error(
+      errorData?.message || `API Error: ${res.status} ${res.statusText}`
+    );
   }
-  
-  return res.json();
-};
+  return res;
+}
 
 export default function App({ Component, pageProps }: AppProps) {
-  // Create a new QueryClient instance for each session
+  // Create a query client instance for React Query
+  // This ensures a fresh query client for each user session
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        queryFn: defaultQueryFn,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 60 * 1000, // 1 minute
         refetchOnWindowFocus: false,
+        retry: 1,
+        // Set default query function to fetch from our API
+        queryFn: async ({ queryKey }: { queryKey: string[] }) => {
+          const res = await fetch(queryKey.join('/'));
+          await throwIfResNotOk(res);
+          return res.json();
+        },
       },
     },
   }));
