@@ -4,8 +4,11 @@ import { storage } from "./storage";
 import { z } from "zod";
 import OpenAI from "openai";
 import { insertDocumentSchema } from "@shared/schema";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication routes
+  setupAuth(app);
   // OpenAI API for generating documents
   app.post("/api/generate-document", async (req, res) => {
     try {

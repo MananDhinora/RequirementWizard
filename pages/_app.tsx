@@ -2,6 +2,7 @@ import { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { useState } from 'react';
+import { AuthProvider } from '@/hooks/use-auth';
 import '../styles/globals.css';
 
 // Create a function to handle API response errors
@@ -37,8 +38,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />
-      <Toaster />
+      <AuthProvider>
+        <Component {...pageProps} />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
