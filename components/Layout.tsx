@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import { HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/router";
 
@@ -33,7 +33,7 @@ export default function Layout({ children, onHelpClick }: LayoutProps) {
               variant="ghost"
               className="text-gray-600 hover:text-gray-900"
             >
-              <QuestionMarkCircledIcon className="mr-2 h-4 w-4" />
+              <HelpCircle className="mr-2 h-4 w-4" />
               Help
             </Button>
             

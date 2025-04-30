@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ApiKeyForm from "@/components/ApiKeyForm";
 import ProjectForm from "@/components/ProjectForm";
@@ -13,6 +13,22 @@ const Home: NextPage = () => {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [apiKeyConnected, setApiKeyConnected] = useState(false);
   const [activeTab, setActiveTab] = useState("create");
+
+  // Listen for tab switching events
+  useEffect(() => {
+    const handleTabSwitch = (event: CustomEvent) => {
+      const tab = event.detail;
+      if (tab === 'list' || tab === 'create') {
+        setActiveTab(tab);
+      }
+    };
+
+    window.addEventListener('switch-tab', handleTabSwitch as EventListener);
+    
+    return () => {
+      window.removeEventListener('switch-tab', handleTabSwitch as EventListener);
+    };
+  }, []);
 
   return (
     <ProtectedRoute>
