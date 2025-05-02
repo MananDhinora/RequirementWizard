@@ -72,7 +72,7 @@ export default function ProjectForm() {
         model,
         ...data,
       });
-      
+
       console.log("Document generation completed");
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -137,10 +137,10 @@ export default function ProjectForm() {
               )}
             />
 
-            <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 sm:justify-between">
+            <div className="flex flex-col space-y-20 sm:flex-row sm:space-y-0 sm:space-x-2 sm:justify-between">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="bg-gray-100 rounded-md p-2">
-                  <span className="text-xs text-gray-500 font-medium mr-2">
+                <div className="bg-gray-100 rounded-md p-1">
+                  <span className="text-s text-black font-medium mr-2">
                     Format:
                   </span>
                   <FormField
@@ -151,7 +151,7 @@ export default function ProjectForm() {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
-                        <SelectTrigger className="bg-transparent border-0 text-sm text-gray-700 focus:ring-0 focus:outline-none w-28">
+                        <SelectTrigger className="bg-transparent border-0 text-sm text-gray-700 focus:ring-0 focus:outline-none w-40">
                           <SelectValue placeholder="Select format" />
                         </SelectTrigger>
                         <SelectContent>
@@ -164,8 +164,8 @@ export default function ProjectForm() {
                   />
                 </div>
 
-                <div className="bg-gray-100 rounded-md p-2">
-                  <span className="text-xs text-gray-500 font-medium mr-2">
+                <div className="bg-gray-100 rounded-md p-1">
+                  <span className="text-s text-black font-medium mr-2">
                     Type:
                   </span>
                   <FormField
@@ -208,7 +208,7 @@ export default function ProjectForm() {
                 <Button
                   type="submit"
                   disabled={isGenerating}
-                  className="inline-flex items-center px-5 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-black bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="inline-flex items-center px-5 py-2 border text-base font-medium rounded-md shadow-sm text-black bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   {isGenerating ? (
                     <span className="flex items-center">

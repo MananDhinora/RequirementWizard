@@ -10,13 +10,14 @@ export default function DocumentOutput() {
   const [isCopying, setIsCopying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editableContent, setEditableContent] = useState<string | null>(null);
-  
+
   // Get document generator state
-  const { document, isGenerating, error, resetError, updateDocument } = useDocumentGenerator();
+  const { document, isGenerating, error, resetError, updateDocument } =
+    useDocumentGenerator();
   const { toast } = useToast();
-  
+
   console.log("DocumentOutput rendering - document:", document);
-  
+
   // Automatically open editor when document is generated
   useEffect(() => {
     if (document?.content && !isGenerating && !isEditing) {

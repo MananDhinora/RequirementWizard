@@ -1,5 +1,12 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Trash2, Edit, Eye } from "lucide-react";
@@ -13,20 +20,24 @@ import TextEditor from "./TextEditor";
 export default function DocumentList() {
   const { toast } = useToast();
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
-  
+
   // Fetch all documents
-  const { data: documents, isLoading, error } = useQuery({
-    queryKey: ['/api/documents'],
+  const {
+    data: documents,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["/api/documents"],
     retryOnMount: false,
   });
-  
+
   // Delete document mutation
   const deleteDocumentMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/documents/${id}`, { method: 'DELETE' });
+      return apiRequest(`/api/documents/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
       toast({
         title: "Document deleted",
         description: "The document has been successfully deleted.",
@@ -40,17 +51,17 @@ export default function DocumentList() {
       });
     },
   });
-  
+
   // Update document mutation
   const updateDocumentMutation = useMutation({
     mutationFn: async ({ id, content }: { id: string; content: string }) => {
       return apiRequest(`/api/documents/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         body: JSON.stringify({ content }),
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
       toast({
         title: "Document updated",
         description: "The document has been successfully updated.",
@@ -64,7 +75,7 @@ export default function DocumentList() {
       });
     },
   });
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -75,37 +86,41 @@ export default function DocumentList() {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-destructive">Error loading documents. Please try again.</p>
+          <p className="text-destructive">
+            Error loading documents. Please try again.
+          </p>
         </div>
       </div>
     );
   }
-  
+
   if (!documents || documents.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-muted-foreground">No documents found. Generate a document to get started.</p>
+          <p className="text-muted-foreground">
+            No documents found. Generate a document to get started.
+          </p>
         </div>
       </div>
     );
   }
-  
+
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this document?")) {
       deleteDocumentMutation.mutate(id);
     }
   };
-  
+
   const handleEdit = (document: Document) => {
     setEditingDocument(document);
   };
-  
+
   const handleSave = (content: string) => {
     if (editingDocument) {
       updateDocumentMutation.mutate({
@@ -115,7 +130,7 @@ export default function DocumentList() {
       setEditingDocument(null);
     }
   };
-  
+
   const getFormatBadgeColor = (format: string) => {
     switch (format) {
       case "markdown":
@@ -128,7 +143,7 @@ export default function DocumentList() {
         return "bg-primary hover:bg-primary/90";
     }
   };
-  
+
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case "comprehensive":
@@ -143,11 +158,11 @@ export default function DocumentList() {
         return "bg-secondary hover:bg-secondary/90";
     }
   };
-  
+
   return (
     <div className="space-y-6 mb-10">
       <h2 className="text-2xl font-bold">Your Documents</h2>
-      
+
       {editingDocument && (
         <TextEditor
           initialContent={editingDocument.content}
@@ -157,26 +172,37 @@ export default function DocumentList() {
           onSave={handleSave}
         />
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {documents.map((doc: Document) => (
           <Card key={doc.id} className="overflow-hidden flex flex-col h-full">
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg font-semibold line-clamp-2">{doc.title}</CardTitle>
+                <CardTitle className="text-lg font-semibold line-clamp-2">
+                  {doc.title}
+                </CardTitle>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
-                <Badge variant="secondary" className={getFormatBadgeColor(doc.format)}>
+                <Badge
+                  variant="secondary"
+                  className={getFormatBadgeColor(doc.format)}
+                >
                   {doc.format}
                 </Badge>
-                <Badge variant="outline" className={getTypeBadgeColor(doc.documentType)}>
+                <Badge
+                  variant="outline"
+                  className={getTypeBadgeColor(doc.documentType)}
+                >
                   {doc.documentType}
                 </Badge>
               </div>
               <CardDescription className="mt-2 text-xs text-muted-foreground">
                 Created: {format(new Date(doc.createdAt), "MMM d, yyyy")}
                 {doc.updatedAt !== doc.createdAt && (
-                  <span> • Updated: {format(new Date(doc.updatedAt), "MMM d, yyyy")}</span>
+                  <span>
+                    {" "}
+                    • Updated: {format(new Date(doc.updatedAt), "MMM d, yyyy")}
+                  </span>
                 )}
               </CardDescription>
             </CardHeader>
@@ -187,8 +213,8 @@ export default function DocumentList() {
             </CardContent>
             <CardFooter className="pt-0 flex justify-between">
               <div className="flex space-x-2">
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="outline"
                   onClick={() => handleEdit(doc)}
                 >
@@ -197,7 +223,7 @@ export default function DocumentList() {
                 </Button>
                 <Button
                   size="sm"
-                  variant="outline" 
+                  variant="outline"
                   className="text-red-500 hover:text-red-600 hover:bg-red-50"
                   onClick={() => handleDelete(doc.id)}
                 >

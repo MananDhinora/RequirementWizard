@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Save, X } from "lucide-react";
+import { Save, X, Eye, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ReactMarkdown from "react-markdown";
 
 interface TextEditorProps {
   initialContent: string;
@@ -19,18 +20,27 @@ export default function TextEditor({
   onSave,
 }: TextEditorProps) {
   const [content, setContent] = useState(initialContent);
+  const [mode, setMode] = useState<"edit" | "preview">("edit");
   const { toast } = useToast();
+  const editorRef = useRef<HTMLDivElement>(null);
 
-  // Auto-resize textarea to fit content
+  // Initialize editor content when component mounts or mode changes to edit
   useEffect(() => {
-    const textarea = document.getElementById(
-      "editor-textarea",
-    ) as HTMLTextAreaElement;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${Math.max(textarea.scrollHeight, 400)}px`;
+    if (mode === "edit" && editorRef.current) {
+      // Only set the content if editorRef is empty or content has changed
+      if (!editorRef.current.textContent || editorRef.current.textContent !== content) {
+        editorRef.current.textContent = content;
+      }
     }
-  }, [content]);
+  }, [mode, content]);
+
+  // Handle content changes from the editor
+  const handleInput = () => {
+    if (editorRef.current) {
+      // Use textContent to avoid HTML parsing issues
+      setContent(editorRef.current.textContent || "");
+    }
+  };
 
   const handleSave = () => {
     onSave(content);
@@ -39,6 +49,54 @@ export default function TextEditor({
       description: "Your changes have been saved",
       duration: 2000,
     });
+  };
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Ctrl+S or Cmd+S to save
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      handleSave();
+    }
+
+    // Tab key handling for code editing
+    if (e.key === "Tab") {
+      e.preventDefault();
+      document.execCommand("insertText", false, "    ");
+    }
+  };
+
+  // Toggle between edit and preview modes
+  const toggleMode = () => {
+    setMode((prevMode) => (prevMode === "edit" ? "preview" : "edit"));
+  };
+
+  // Generate preview content based on format type
+  const renderPreviewContent = () => {
+    if (format === "markdown") {
+      return (
+        <div className="prose max-w-none prose-headings:mt-4 prose-headings:mb-2" data-testid="markdown-preview">
+          <ReactMarkdown>{content}</ReactMarkdown>
+        </div>
+      );
+    } else if (format === "html") {
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: content }}
+          data-testid="html-preview"
+        />
+      );
+    } else {
+      // For plain text, use pre tag to preserve formatting but without duplicating content
+      return (
+        <pre
+          className="whitespace-pre-wrap font-mono text-sm"
+          data-testid="text-preview"
+        >
+          {content}
+        </pre>
+      );
+    }
   };
 
   return (
@@ -51,15 +109,41 @@ export default function TextEditor({
               variant="outline"
               size="sm"
               className="text-gray-700"
+              onClick={toggleMode}
+              aria-label={
+                mode === "edit"
+                  ? "Switch to preview mode"
+                  : "Switch to edit mode"
+              }
+            >
+              {mode === "edit" ? (
+                <>
+                  <Eye className="h-4 w-4 mr-1" />
+                  Preview
+                </>
+              ) : (
+                <>
+                  <Edit2 className="h-4 w-4 mr-1" />
+                  Edit
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-gray-700"
               onClick={onClose}
+              aria-label="Cancel editing"
             >
               <X className="h-4 w-4 mr-1" />
+              Cancel
             </Button>
             <Button
               variant="default"
               size="sm"
-              className="bg-primary-600 hover:bg-primary-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleSave}
+              aria-label="Save changes"
             >
               <Save className="h-4 w-4 mr-1" />
               Save Changes
@@ -68,25 +152,35 @@ export default function TextEditor({
         </div>
 
         <div className="flex-grow overflow-auto p-4">
-          <div
-            contentEditable="true"
-            id="editor-textarea"
-            className="w-full h-full min-h-[400px] p-3 font-mono text-sm border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-            onInput={(e) => setContent(e.currentTarget.textContent || '')}
-            spellCheck="false"
-          >
-            {content}
-          </div>
+          {mode === "edit" ? (
+            <div
+              ref={editorRef}
+              contentEditable
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              className="w-full h-full min-h-[400px] p-3 font-mono text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none whitespace-pre-wrap"
+              spellCheck={false}
+              data-testid="editor"
+              suppressContentEditableWarning={true}
+            >
+              {/* Content will be set by useEffect */}
+            </div>
+          ) : (
+            <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
+              {renderPreviewContent()}
+            </div>
+          )}
         </div>
 
-        <div className="p-3 bg-gray-50 border-t text-xs text-gray-500">
-          Editing in{" "}
-          {format === "markdown"
-            ? "Markdown"
-            : format === "html"
-              ? "HTML"
-              : "Plain Text"}{" "}
-          format
+        <div className="p-3 bg-gray-50 border-t flex justify-between items-center">
+          <span className="text-xs text-gray-500">
+            {mode === "edit"
+              ? `Editing in ${format === "markdown" ? "Markdown" : format === "html" ? "HTML" : "Plain Text"} format`
+              : `Previewing in ${format === "markdown" ? "Markdown" : format === "html" ? "HTML" : "Plain Text"} format`}
+          </span>
+          {mode === "edit" && (
+            <span className="text-xs text-gray-500">Press Ctrl+S to save</span>
+          )}
         </div>
       </div>
     </div>
