@@ -36,7 +36,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function ProjectForm() {
+type ProjectFormProps = {
+  onDocumentGenerated: () => void; // Function to trigger refresh
+};
+
+export default function ProjectForm({ onDocumentGenerated }: ProjectFormProps) {
   const { generateDocument, isGenerating, resetDocument } =
     useDocumentGenerator();
 
@@ -74,6 +78,9 @@ export default function ProjectForm() {
       });
 
       console.log("Document generation completed");
+
+      // Trigger refresh in parent component after document is generated
+      onDocumentGenerated();
     } catch (error) {
       console.error("Error submitting form:", error);
     }

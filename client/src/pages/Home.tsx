@@ -2,15 +2,21 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import ApiKeyForm from "@/components/ApiKeyForm";
 import ProjectForm from "@/components/ProjectForm";
-import DocumentOutput from "@/components/DocumentOutput";
 import DocumentList from "@/components/DocumentList";
 import HelpModal from "@/components/HelpModal";
+import MostRecentDocument from "@/components/MostRecentFile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Home() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [apiKeyConnected, setApiKeyConnected] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // Key to trigger refresh
   const [activeTab, setActiveTab] = useState("create");
+
+  // Function to trigger refresh
+  const handleNewDocument = () => {
+    setRefreshKey((prevKey) => prevKey + 1); // Increment to refresh data
+  };
 
   return (
     <Layout onHelpClick={() => setIsHelpModalOpen(true)}>
@@ -33,8 +39,8 @@ export default function Home() {
 
           <TabsContent value="create" className="mt-6">
             <div className="lg:grid lg:grid-cols-2 lg:gap-6">
-              <ProjectForm />
-              <DocumentOutput />
+              <ProjectForm onDocumentGenerated={handleNewDocument} />
+              <MostRecentDocument refreshKey={refreshKey} />
             </div>
           </TabsContent>
 
