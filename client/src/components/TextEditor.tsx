@@ -27,12 +27,15 @@ export default function TextEditor({
   // Initialize editor content when component mounts or mode changes to edit
   useEffect(() => {
     if (mode === "edit" && editorRef.current) {
-      // Only set the content if editorRef is empty or content has changed
-      if (!editorRef.current.textContent || editorRef.current.textContent !== content) {
-        editorRef.current.textContent = content;
-      }
+      editorRef.current.textContent = content;
     }
-  }, [mode, content]);
+  }, [mode]);
+
+  useEffect(() => {
+    if (mode === "edit" && editorRef.current && content !== editorRef.current.textContent) {
+      editorRef.current.textContent = content;
+    }
+  }, [content]);
 
   // Handle content changes from the editor
   const handleInput = () => {
