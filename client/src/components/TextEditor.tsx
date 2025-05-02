@@ -24,28 +24,25 @@ export default function TextEditor({
   const { toast } = useToast();
   const editorRef = useRef<HTMLDivElement>(null);
 
-  // Initialize editor content when component mounts or mode changes to edit
-  // useEffect(() => {
-  //   if (mode === "edit" && editorRef.current) {
-  //     editorRef.current.textContent = content;
-  //   }
-  // }, [mode]);
+  // Initialize content when component mounts
+  useEffect(() => {
+    setContent(initialContent);
+    if (editorRef.current) {
+      editorRef.current.textContent = initialContent;
+    }
+  }, [initialContent]);
 
-  // useEffect(() => {
-  //   if (
-  //     mode === "edit" &&
-  //     editorRef.current &&
-  //     content !== editorRef.current.textContent
-  //   ) {
-  //     editorRef.current.textContent = content;
-  //   }
-  // }, [content]);
+  // Sync editor content when mode changes
+  useEffect(() => {
+    if (mode === "edit" && editorRef.current) {
+      editorRef.current.textContent = content;
+    }
+  }, [mode]);
 
-  // Handle content changes from the editor
   const handleInput = () => {
     if (editorRef.current) {
-      // Use textContent to avoid HTML parsing issues
-      setContent(editorRef.current.textContent || "");
+      const newContent = editorRef.current.textContent || "";
+      setContent(newContent);
     }
   };
 
@@ -58,24 +55,35 @@ export default function TextEditor({
     });
   };
 
-  // Handle keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Ctrl+S or Cmd+S to save
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       handleSave();
     }
 
-    // Tab key handling for code editing
     if (e.key === "Tab") {
       e.preventDefault();
       document.execCommand("insertText", false, "    ");
     }
   };
 
-  // Toggle between edit and preview modes
   const toggleMode = () => {
     setMode((prevMode) => (prevMode === "edit" ? "preview" : "edit"));
+  };
+
+  const renderPreview = () => {
+    switch (format) {
+      case "markdown":
+        return (
+          <div className="prose prose-sm lg:prose-base max-w-none prose-headings:mt-4 prose-headings:mb-2">
+            <ReactMarkdown>{content}</ReactMarkdown>
+          </div>
+        );
+      case "html":
+        return <div dangerouslySetInnerHTML={{ __html: content }} />;
+      default:
+        return <pre className="whitespace-pre-wrap font-mono text-sm">{content}</pre>;
+    }
   };
 
   return (
@@ -89,11 +97,6 @@ export default function TextEditor({
               size="sm"
               className="text-gray-700"
               onClick={toggleMode}
-              aria-label={
-                mode === "edit"
-                  ? "Switch to preview mode"
-                  : "Switch to edit mode"
-              }
             >
               {mode === "edit" ? (
                 <>
@@ -112,7 +115,6 @@ export default function TextEditor({
               size="sm"
               className="text-gray-700"
               onClick={onClose}
-              aria-label="Cancel editing"
             >
               <X className="h-4 w-4 mr-1" />
               Cancel
@@ -122,7 +124,6 @@ export default function TextEditor({
               size="sm"
               className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleSave}
-              aria-label="Save changes"
             >
               <Save className="h-4 w-4 mr-1" />
               Save Changes
@@ -139,43 +140,12 @@ export default function TextEditor({
               onKeyDown={handleKeyDown}
               className="w-full h-full min-h-[400px] p-3 font-mono text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none whitespace-pre-wrap"
               spellCheck={false}
-              data-testid="editor"
               suppressContentEditableWarning={true}
-            >
-              {/* Content will be set by useEffect */}
-            </div>
+            />
           ) : (
-            // Using a React Fragment to avoid adding any extra DOM nodes that might duplicate content
-            <>
-              {format === "markdown" && (
-                <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
-                  <div
-                    className="prose prose-sm lg:prose-base max-w-none prose-headings:mt-4 prose-headings:mb-2"
-                    data-testid="markdown-preview"
-                  >
-                    <ReactMarkdown>{content}</ReactMarkdown>
-                  </div>
-                </div>
-              )}
-              {format === "html" && (
-                <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
-                  <div
-                    dangerouslySetInnerHTML={{ __html: content }}
-                    data-testid="html-preview"
-                  />
-                </div>
-              )}
-              {format === "text" && (
-                <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
-                  <pre
-                    className="whitespace-pre-wrap font-mono text-sm"
-                    data-testid="text-preview"
-                  >
-                    {content}
-                  </pre>
-                </div>
-              )}
-            </>
+            <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
+              {renderPreview()}
+            </div>
           )}
         </div>
 
