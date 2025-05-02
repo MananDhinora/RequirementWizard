@@ -15,13 +15,13 @@ export default function Home() {
   return (
     <Layout onHelpClick={() => setIsHelpModalOpen(true)}>
       <div className="max-w-7xl mx-auto">
-        <ApiKeyForm 
-          onApiKeyConnected={() => setApiKeyConnected(true)} 
+        <ApiKeyForm
+          onApiKeyConnected={() => setApiKeyConnected(true)}
           apiKeyConnected={apiKeyConnected}
         />
-        
-        <Tabs 
-          defaultValue="create" 
+
+        <Tabs
+          defaultValue="create"
           value={activeTab}
           onValueChange={setActiveTab}
           className="w-full mb-6"
@@ -30,20 +30,20 @@ export default function Home() {
             <TabsTrigger value="create">Create Document</TabsTrigger>
             <TabsTrigger value="list">Your Documents</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="create" className="mt-6">
             <div className="lg:grid lg:grid-cols-2 lg:gap-6">
               <ProjectForm />
               <DocumentOutput />
             </div>
           </TabsContent>
-          
+
           <TabsContent value="list" className="mt-6">
             <DocumentList />
           </TabsContent>
         </Tabs>
       </div>
-      
+
       {isHelpModalOpen && (
         <HelpModal onClose={() => setIsHelpModalOpen(false)} />
       )}

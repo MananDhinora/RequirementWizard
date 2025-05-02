@@ -4,7 +4,11 @@ import {
   useMutation,
   UseMutationResult,
 } from "@tanstack/react-query";
-import { insertUserSchema, User as SelectUser, InsertUser } from "@/shared/schema";
+import {
+  insertUserSchema,
+  User as SelectUser,
+  InsertUser,
+} from "@/shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 type AuthContextType = {
@@ -22,7 +26,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
-  
+
   const {
     data: user,
     error,
@@ -41,12 +45,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(credentials),
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => null);
-        throw new Error(errorData?.message || `Login failed: ${res.status} ${res.statusText}`);
+        throw new Error(
+          errorData?.message || `Login failed: ${res.status} ${res.statusText}`,
+        );
       }
-      
+
       return await res.json();
     },
     onError: (error: Error) => {
@@ -67,12 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(credentials),
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => null);
-        throw new Error(errorData?.message || `Registration failed: ${res.status} ${res.statusText}`);
+        throw new Error(
+          errorData?.message ||
+            `Registration failed: ${res.status} ${res.statusText}`,
+        );
       }
-      
+
       return await res.json();
     },
     onError: (error: Error) => {
@@ -89,10 +98,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch("/api/logout", {
         method: "POST",
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => null);
-        throw new Error(errorData?.message || `Logout failed: ${res.status} ${res.statusText}`);
+        throw new Error(
+          errorData?.message ||
+            `Logout failed: ${res.status} ${res.statusText}`,
+        );
       }
     },
     onError: (error: Error) => {

@@ -6,28 +6,26 @@ export interface GenerateDocumentRequest {
   model: string;
   projectTitle: string;
   projectDescription: string;
-  outputFormat: "markdown" | "html" | "text";
+  outputFormat: "markdown" | "text";
   documentType: "comprehensive" | "concise" | "technical" | "business";
 }
 
 export interface GeneratedDocument {
-  id?: string;  // Added ID for DB persistence
+  id?: string; // Added ID for DB persistence
   title: string;
   content: string;
-  format: "markdown" | "html" | "text";
+  format: "markdown" | "text";
 }
 
 function createPromptForDocumentType(
   title: string,
   description: string,
   documentType: string,
-  outputFormat: string
+  outputFormat: string,
 ): string {
-  const formatInstructions = 
-    outputFormat === "markdown" 
+  const formatInstructions =
+    outputFormat === "markdown"
       ? "Use markdown formatting with headers (##, ###), bullet points, and emphasis to structure the document."
-      : outputFormat === "html"
-      ? "Use HTML tags (<h1>, <h2>, <p>, <ul>, <li>, etc.) to structure the document."
       : "Use plain text with clear section headings and spacing to structure the document.";
 
   const basePrompt = `
@@ -98,7 +96,9 @@ Create a business-oriented PRD that highlights:
 }
 
 // Generate document function - client-side version
-export async function generatePRD(params: GenerateDocumentRequest): Promise<GeneratedDocument> {
+export async function generatePRD(
+  params: GenerateDocumentRequest,
+): Promise<GeneratedDocument> {
   try {
     const response = await fetch("/api/generate-document", {
       method: "POST",
@@ -107,52 +107,57 @@ export async function generatePRD(params: GenerateDocumentRequest): Promise<Gene
       },
       body: JSON.stringify(params),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       throw new Error(
-        errorData?.message || `Error: ${response.status} ${response.statusText}`
+        errorData?.message ||
+          `Error: ${response.status} ${response.statusText}`,
       );
     }
-    
+
     const result = await response.json();
-    
+
     if (!result.content) {
       throw new Error("Failed to generate document");
     }
-    
+
     // Handle response that includes document from DB
     if (result.document) {
       return {
         id: result.document.id,
         title: result.document.title || params.projectTitle,
         content: result.content,
-        format: result.document.format || params.outputFormat
+        format: result.document.format || params.outputFormat,
       };
     }
-    
+
     // Fallback to legacy format
     return {
       title: params.projectTitle || "Project Requirements Document",
       content: result.content,
-      format: params.outputFormat
+      format: params.outputFormat,
     };
   } catch (error) {
     console.error("Error generating document:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to generate document");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to generate document",
+    );
   }
 }
 
 // Server-side OpenAI integration
-export async function generatePRDServer(params: GenerateDocumentRequest): Promise<string> {
+export async function generatePRDServer(
+  params: GenerateDocumentRequest,
+): Promise<string> {
   const openai = new OpenAI({ apiKey: params.apiKey });
-  
+
   try {
     const prompt = createPromptForDocumentType(
       params.projectTitle,
       params.projectDescription,
       params.documentType,
-      params.outputFormat
+      params.outputFormat,
     );
 
     const response = await openai.chat.completions.create({

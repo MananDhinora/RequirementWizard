@@ -56,12 +56,7 @@ export default function DocumentOutput() {
       ? document.title.replace(/\s+/g, "_")
       : "Project_Requirements";
 
-    const extension =
-      document.format === "html"
-        ? "html"
-        : document.format === "markdown"
-          ? "md"
-          : "txt";
+    const extension = document.format === "markdown" ? "md" : "txt";
 
     const blob = new Blob([document.content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);

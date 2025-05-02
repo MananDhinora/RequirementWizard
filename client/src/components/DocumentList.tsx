@@ -135,8 +135,6 @@ export default function DocumentList() {
     switch (format) {
       case "markdown":
         return "bg-blue-500 hover:bg-blue-600";
-      case "html":
-        return "bg-green-500 hover:bg-green-600";
       case "text":
         return "bg-gray-500 hover:bg-gray-600";
       default:
@@ -166,7 +164,7 @@ export default function DocumentList() {
       {editingDocument && (
         <TextEditor
           initialContent={editingDocument.content}
-          format={editingDocument.format as "markdown" | "html" | "text"}
+          format={editingDocument.format as "markdown" | "text"}
           title={`${editingDocument.title}`}
           onClose={() => setEditingDocument(null)}
           onSave={handleSave}

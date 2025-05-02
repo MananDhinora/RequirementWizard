@@ -28,7 +28,7 @@ const formSchema = z.object({
     .string()
     .min(10, "Please provide a detailed description")
     .max(5000),
-  outputFormat: z.enum(["markdown", "html", "text"]).default("markdown"),
+  outputFormat: z.enum(["markdown", "text"]).default("markdown"),
   documentType: z
     .enum(["comprehensive", "concise", "technical", "business"])
     .default("comprehensive"),
@@ -156,7 +156,6 @@ export default function ProjectForm() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="markdown">Markdown</SelectItem>
-                          <SelectItem value="html">HTML</SelectItem>
                           <SelectItem value="text">Plain Text</SelectItem>
                         </SelectContent>
                       </Select>

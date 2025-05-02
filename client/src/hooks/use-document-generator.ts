@@ -22,10 +22,12 @@ let documentCache: GeneratedDocument | null = null;
 
 export function useDocumentGenerator(): UseDocumentGeneratorReturn {
   // Use the cached document as initial state
-  const [document, setDocument] = useState<GeneratedDocument | null>(documentCache);
+  const [document, setDocument] = useState<GeneratedDocument | null>(
+    documentCache,
+  );
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  
+
   // Use a ref to track if this is a new instance of the hook
   const initialized = useRef(false);
   const hookId = useRef(Math.random().toString(36).substring(7));
@@ -33,7 +35,10 @@ export function useDocumentGenerator(): UseDocumentGeneratorReturn {
   // Initialize once
   if (!initialized.current) {
     initialized.current = true;
-    console.log(`[${hookId.current}] useDocumentGenerator initialized, cache:`, documentCache);
+    console.log(
+      `[${hookId.current}] useDocumentGenerator initialized, cache:`,
+      documentCache,
+    );
   }
 
   // Debug: Log when document changes
@@ -45,12 +50,12 @@ export function useDocumentGenerator(): UseDocumentGeneratorReturn {
     mutationFn: generatePRD,
     onSuccess: (data) => {
       console.log(`[${hookId.current}] Generation successful, received:`, data);
-      
+
       // Update both state and cache
       documentCache = data;
       setDocument(data);
       setError(null);
-      
+
       toast({
         title: "Success!",
         description: "Your PRD document has been generated",
@@ -59,7 +64,7 @@ export function useDocumentGenerator(): UseDocumentGeneratorReturn {
     },
     onError: (err: Error) => {
       console.error(`[${hookId.current}] Generation error:`, err);
-      
+
       setError(
         err.message ||
           "Failed to generate document. Please check your API key and try again.",
@@ -73,18 +78,27 @@ export function useDocumentGenerator(): UseDocumentGeneratorReturn {
     },
   });
 
-  const generateDocument = useCallback(async (params: GenerateDocumentRequest) => {
-    console.log(`[${hookId.current}] Generating document with params:`, params);
-    
-    try {
-      const result = await mutation.mutateAsync(params);
-      console.log(`[${hookId.current}] Generated document result:`, result);
-      // We don't return anything to match the Promise<void> type
-    } catch (err) {
-      console.error(`[${hookId.current}] Error caught in generateDocument:`, err);
-      // Error is handled by the mutation
-    }
-  }, [mutation, hookId]);
+  const generateDocument = useCallback(
+    async (params: GenerateDocumentRequest) => {
+      console.log(
+        `[${hookId.current}] Generating document with params:`,
+        params,
+      );
+
+      try {
+        const result = await mutation.mutateAsync(params);
+        console.log(`[${hookId.current}] Generated document result:`, result);
+        // We don't return anything to match the Promise<void> type
+      } catch (err) {
+        console.error(
+          `[${hookId.current}] Error caught in generateDocument:`,
+          err,
+        );
+        // Error is handled by the mutation
+      }
+    },
+    [mutation, hookId],
+  );
 
   const resetDocument = useCallback(() => {
     console.log(`[${hookId.current}] Resetting document`);
@@ -98,19 +112,22 @@ export function useDocumentGenerator(): UseDocumentGeneratorReturn {
     setError(null);
   }, [hookId]);
 
-  const updateDocument = useCallback((updatedDocument: GeneratedDocument) => {
-    console.log(`[${hookId.current}] Updating document:`, updatedDocument);
-    
-    // Update both state and cache
-    documentCache = updatedDocument;
-    setDocument(updatedDocument);
-    
-    toast({
-      title: "Document updated",
-      description: "Your changes have been saved",
-      duration: 2000,
-    });
-  }, [toast, hookId]);
+  const updateDocument = useCallback(
+    (updatedDocument: GeneratedDocument) => {
+      console.log(`[${hookId.current}] Updating document:`, updatedDocument);
+
+      // Update both state and cache
+      documentCache = updatedDocument;
+      setDocument(updatedDocument);
+
+      toast({
+        title: "Document updated",
+        description: "Your changes have been saved",
+        duration: 2000,
+      });
+    },
+    [toast, hookId],
+  );
 
   return {
     document,

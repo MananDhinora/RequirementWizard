@@ -1,4 +1,12 @@
-import { pgTable, text, serial, integer, boolean, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  boolean,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -22,8 +30,14 @@ export const documents = pgTable("documents", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  format: text("format", { enum: ["markdown", "html", "text"] }).notNull().default("markdown"),
-  documentType: text("document_type", { enum: ["comprehensive", "concise", "technical", "business"] }).notNull().default("comprehensive"),
+  format: text("format", { enum: ["markdown", "text"] })
+    .notNull()
+    .default("markdown"),
+  documentType: text("document_type", {
+    enum: ["comprehensive", "concise", "technical", "business"],
+  })
+    .notNull()
+    .default("comprehensive"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -41,8 +55,10 @@ export type Document = typeof documents.$inferSelect;
 export const projectRequirementSchema = z.object({
   projectTitle: z.string().min(1, "Project title is required"),
   projectDescription: z.string().min(10, "Project description is required"),
-  outputFormat: z.enum(["markdown", "html", "text"]).default("markdown"),
-  documentType: z.enum(["comprehensive", "concise", "technical", "business"]).default("comprehensive"),
+  outputFormat: z.enum(["markdown", "text"]).default("markdown"),
+  documentType: z
+    .enum(["comprehensive", "concise", "technical", "business"])
+    .default("comprehensive"),
 });
 
 export type ProjectRequirement = z.infer<typeof projectRequirementSchema>;
@@ -50,7 +66,7 @@ export type ProjectRequirement = z.infer<typeof projectRequirementSchema>;
 export const generatedDocumentSchema = z.object({
   title: z.string(),
   content: z.string(),
-  format: z.enum(["markdown", "html", "text"]),
+  format: z.enum(["markdown", "text"]),
 });
 
 export type GeneratedDocument = z.infer<typeof generatedDocumentSchema>;
