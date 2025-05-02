@@ -27,17 +27,14 @@ export default function TextEditor({
   // Initialize content when component mounts
   useEffect(() => {
     setContent(initialContent);
-    if (editorRef.current) {
-      editorRef.current.textContent = initialContent;
-    }
   }, [initialContent]);
 
   // Sync editor content when mode changes
   useEffect(() => {
     if (mode === "edit" && editorRef.current) {
-      editorRef.current.textContent = content;
+      editorRef.current.innerText = content;
     }
-  }, [mode]);
+  }, [mode, content]);
 
   const handleInput = () => {
     if (editorRef.current) {
@@ -82,7 +79,9 @@ export default function TextEditor({
       case "html":
         return <div dangerouslySetInnerHTML={{ __html: content }} />;
       default:
-        return <pre className="whitespace-pre-wrap font-mono text-sm">{content}</pre>;
+        return (
+          <pre className="whitespace-pre-wrap font-mono text-sm">{content}</pre>
+        );
     }
   };
 
