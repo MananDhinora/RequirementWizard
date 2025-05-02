@@ -20,8 +20,13 @@ export default function DocumentOutput() {
 
   // Automatically open editor when document is generated
   useEffect(() => {
+    console.log("Effect triggered", {
+      content: document?.content,
+      isGenerating,
+      isEditing,
+    });
+
     if (document?.content && !isGenerating && !isEditing) {
-      console.log("Opening editor with content:", document.content);
       setEditableContent(document.content);
       setIsEditing(true);
     }
