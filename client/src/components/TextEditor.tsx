@@ -24,16 +24,27 @@ export default function TextEditor({
   const { toast } = useToast();
 
   useEffect(() => {
-    setContent(initialContent);
-  }, [initialContent]);
+    if (initialContent !== content) {
+      setContent(initialContent);
+    }
+  }, [initialContent, content]);
 
   const handleSave = () => {
-    onSave(content);
-    toast({
-      title: "Document saved",
-      description: "Your changes have been saved",
-      duration: 2000,
-    });
+    try {
+      onSave(content);
+      toast({
+        title: "Document saved",
+        description: "Your changes have been saved",
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "Failed to save changes. Please try again.",
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
