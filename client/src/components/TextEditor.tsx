@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { Save, X, Eye, Edit2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../hooks/use-toast";
 import ReactMarkdown from "react-markdown";
 
 interface TextEditorProps {
@@ -71,34 +71,6 @@ export default function TextEditor({
     setMode((prevMode) => (prevMode === "edit" ? "preview" : "edit"));
   };
 
-  // Generate preview content based on format type
-  const renderPreviewContent = () => {
-    if (format === "markdown") {
-      return (
-        <div className="prose max-w-none prose-headings:mt-4 prose-headings:mb-2" data-testid="markdown-preview">
-          <ReactMarkdown>{content}</ReactMarkdown>
-        </div>
-      );
-    } else if (format === "html") {
-      return (
-        <div
-          dangerouslySetInnerHTML={{ __html: content }}
-          data-testid="html-preview"
-        />
-      );
-    } else {
-      // For plain text, use pre tag to preserve formatting but without duplicating content
-      return (
-        <pre
-          className="whitespace-pre-wrap font-mono text-sm"
-          data-testid="text-preview"
-        >
-          {content}
-        </pre>
-      );
-    }
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
@@ -166,9 +138,28 @@ export default function TextEditor({
               {/* Content will be set by useEffect */}
             </div>
           ) : (
-            <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
-              {renderPreviewContent()}
-            </div>
+            // Using a React Fragment to avoid adding any extra DOM nodes that might duplicate content
+            <>
+              {format === "markdown" && (
+                <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
+                  <div className="prose prose-sm lg:prose-base max-w-none prose-headings:mt-4 prose-headings:mb-2" data-testid="markdown-preview">
+                    <ReactMarkdown>{content}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
+              {format === "html" && (
+                <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
+                  <div dangerouslySetInnerHTML={{ __html: content }} data-testid="html-preview" />
+                </div>
+              )}
+              {format === "text" && (
+                <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
+                  <pre className="whitespace-pre-wrap font-mono text-sm" data-testid="text-preview">
+                    {content}
+                  </pre>
+                </div>
+              )}
+            </>
           )}
         </div>
 
