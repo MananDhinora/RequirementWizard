@@ -167,7 +167,7 @@ export default function DocumentList() {
         <TextEditor
           initialContent={editingDocument.content}
           format={editingDocument.format as "markdown" | "html" | "text"}
-          title={`Editing: ${editingDocument.title}`}
+          title={`${editingDocument.title}`}
           onClose={() => setEditingDocument(null)}
           onSave={handleSave}
         />

@@ -25,17 +25,21 @@ export default function TextEditor({
   const editorRef = useRef<HTMLDivElement>(null);
 
   // Initialize editor content when component mounts or mode changes to edit
-  useEffect(() => {
-    if (mode === "edit" && editorRef.current) {
-      editorRef.current.textContent = content;
-    }
-  }, [mode]);
+  // useEffect(() => {
+  //   if (mode === "edit" && editorRef.current) {
+  //     editorRef.current.textContent = content;
+  //   }
+  // }, [mode]);
 
-  useEffect(() => {
-    if (mode === "edit" && editorRef.current && content !== editorRef.current.textContent) {
-      editorRef.current.textContent = content;
-    }
-  }, [content]);
+  // useEffect(() => {
+  //   if (
+  //     mode === "edit" &&
+  //     editorRef.current &&
+  //     content !== editorRef.current.textContent
+  //   ) {
+  //     editorRef.current.textContent = content;
+  //   }
+  // }, [content]);
 
   // Handle content changes from the editor
   const handleInput = () => {
@@ -145,19 +149,28 @@ export default function TextEditor({
             <>
               {format === "markdown" && (
                 <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
-                  <div className="prose prose-sm lg:prose-base max-w-none prose-headings:mt-4 prose-headings:mb-2" data-testid="markdown-preview">
+                  <div
+                    className="prose prose-sm lg:prose-base max-w-none prose-headings:mt-4 prose-headings:mb-2"
+                    data-testid="markdown-preview"
+                  >
                     <ReactMarkdown>{content}</ReactMarkdown>
                   </div>
                 </div>
               )}
               {format === "html" && (
                 <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
-                  <div dangerouslySetInnerHTML={{ __html: content }} data-testid="html-preview" />
+                  <div
+                    dangerouslySetInnerHTML={{ __html: content }}
+                    data-testid="html-preview"
+                  />
                 </div>
               )}
               {format === "text" && (
                 <div className="w-full h-full min-h-[400px] p-3 border border-gray-300 rounded-md overflow-auto">
-                  <pre className="whitespace-pre-wrap font-mono text-sm" data-testid="text-preview">
+                  <pre
+                    className="whitespace-pre-wrap font-mono text-sm"
+                    data-testid="text-preview"
+                  >
                     {content}
                   </pre>
                 </div>
