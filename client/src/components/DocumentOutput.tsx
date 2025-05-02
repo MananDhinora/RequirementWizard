@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, Download, AlertCircle, Edit } from "lucide-react";
@@ -6,26 +7,15 @@ import { useDocumentGenerator } from "@/hooks/use-document-generator";
 import TextEditor from "./TextEditor";
 
 export default function DocumentOutput() {
-  // State hooks must always be in the same order
   const [isCopying, setIsCopying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editableContent, setEditableContent] = useState<string | null>(null);
 
-  // Get document generator state
   const { document, isGenerating, error, resetError, updateDocument } =
     useDocumentGenerator();
   const { toast } = useToast();
 
-  console.log("DocumentOutput rendering - document:", document);
-
-  // Automatically open editor when document is generated
   useEffect(() => {
-    console.log("Effect triggered", {
-      content: document?.content,
-      isGenerating,
-      isEditing,
-    });
-
     if (document?.content && !isGenerating && !isEditing) {
       setEditableContent(document.content);
       setIsEditing(true);
@@ -162,12 +152,9 @@ export default function DocumentOutput() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <p className="text-sm mb-1">
-                Your generated document will appear here
-              </p>
+              <p className="text-sm mb-1">Your generated document will appear here</p>
               <p className="text-xs text-center max-w-sm">
-                Fill out the project description and click "Generate PRD" to
-                create your document
+                Fill out the project description and click "Generate PRD" to create your document
               </p>
             </div>
           )}
@@ -176,9 +163,7 @@ export default function DocumentOutput() {
           {!isGenerating && error && (
             <div className="flex-grow flex flex-col items-center justify-center text-red-500">
               <AlertCircle className="h-16 w-16 mb-4" />
-              <p className="text-sm mb-1 font-medium">
-                Error generating document
-              </p>
+              <p className="text-sm mb-1 font-medium">Error generating document</p>
               <p className="text-xs text-center max-w-sm">{error}</p>
               <Button
                 variant="outline"
