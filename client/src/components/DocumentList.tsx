@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Trash2, Edit, Eye } from "lucide-react";
+import { Trash2, Edit } from "lucide-react";
 import { Document } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -57,7 +57,7 @@ export default function DocumentList() {
     mutationFn: async ({ id, content }: { id: string; content: string }) => {
       return apiRequest(`/api/documents/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ content }),
+        body: { content },
       });
     },
     onSuccess: () => {
@@ -68,6 +68,7 @@ export default function DocumentList() {
       });
     },
     onError: (error) => {
+      console.error("Error updating document:", error);
       toast({
         title: "Error",
         description: "Failed to update document. Please try again.",
@@ -122,12 +123,29 @@ export default function DocumentList() {
   };
 
   const handleSave = (content: string) => {
-    if (editingDocument) {
-      updateDocumentMutation.mutate({
-        id: editingDocument.id,
-        content,
+    try {
+      console.log("Saving content:", content); // Add logging
+      if (editingDocument) {
+        console.log("Saving document ID:", editingDocument.id); // Add logging
+        updateDocumentMutation.mutate({
+          id: editingDocument.id,
+          content,
+        });
+        setEditingDocument(null);
+      }
+      toast({
+        title: "Document saved",
+        description: "Your changes have been saved",
+        duration: 2000,
       });
-      setEditingDocument(null);
+    } catch (error) {
+      console.error("Error saving document:", error); // Add error logging
+      toast({
+        title: "Save failed",
+        description: "Failed to save changes. Please try again.",
+        variant: "destructive",
+        duration: 2000,
+      });
     }
   };
 

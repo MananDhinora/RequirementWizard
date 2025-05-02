@@ -24,10 +24,8 @@ export default function TextEditor({
   const { toast } = useToast();
 
   useEffect(() => {
-    if (initialContent !== content) {
-      setContent(initialContent);
-    }
-  }, [initialContent, content]);
+    setContent(initialContent);
+  }, [initialContent]);
 
   const handleSave = () => {
     try {
