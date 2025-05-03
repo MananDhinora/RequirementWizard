@@ -124,9 +124,7 @@ export default function DocumentList() {
 
   const handleSave = (content: string) => {
     try {
-      console.log("Saving content:", content); // Add logging
       if (editingDocument) {
-        console.log("Saving document ID:", editingDocument.id); // Add logging
         updateDocumentMutation.mutate({
           id: editingDocument.id,
           content,
@@ -139,7 +137,7 @@ export default function DocumentList() {
         duration: 2000,
       });
     } catch (error) {
-      console.error("Error saving document:", error); // Add error logging
+      console.error("Error saving document:", error);
       toast({
         title: "Save failed",
         description: "Failed to save changes. Please try again.",

@@ -1,6 +1,10 @@
-import { 
-  users, type User, type InsertUser,
-  documents, type Document, type InsertDocument 
+import {
+  users,
+  type User,
+  type InsertUser,
+  documents,
+  type Document,
+  type InsertDocument,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -11,12 +15,15 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Document operations
   getDocument(id: string): Promise<Document | undefined>;
   getAllDocuments(): Promise<Document[]>;
   createDocument(document: InsertDocument): Promise<Document>;
-  updateDocument(id: string, document: Partial<InsertDocument>): Promise<Document | undefined>;
+  updateDocument(
+    id: string,
+    document: Partial<InsertDocument>,
+  ): Promise<Document | undefined>;
   deleteDocument(id: string): Promise<boolean>;
 }
 
@@ -29,15 +36,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
     return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
@@ -51,10 +58,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllDocuments(): Promise<Document[]> {
-    return await db
-      .select()
-      .from(documents)
-      .orderBy(documents.createdAt);
+    return await db.select().from(documents).orderBy(documents.createdAt);
   }
 
   async createDocument(document: InsertDocument): Promise<Document> {
@@ -65,7 +69,10 @@ export class DatabaseStorage implements IStorage {
     return createdDocument;
   }
 
-  async updateDocument(id: string, document: Partial<InsertDocument>): Promise<Document | undefined> {
+  async updateDocument(
+    id: string,
+    document: Partial<InsertDocument>,
+  ): Promise<Document | undefined> {
     const [updatedDocument] = await db
       .update(documents)
       .set({ ...document, updatedAt: new Date() })
@@ -83,5 +90,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Replace MemStorage with DatabaseStorage
+// Replace MemoryStorage with DatabaseStorage
 export const storage = new DatabaseStorage();

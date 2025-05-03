@@ -26,7 +26,7 @@ function createPromptForDocumentType(
   const formatInstructions =
     outputFormat === "markdown"
       ? "Use markdown formatting with headers (##, ###), bullet points, and emphasis to structure the document."
-      : "Use plain text with clear section headings and spacing to structure the document.";
+      : "Use word document syntax with clear section headings and spacing to structure, dont use markdown syntax only plain text in the document.";
 
   const basePrompt = `
 Generate a professional Project Requirements Document (PRD) for the following project:
@@ -119,7 +119,6 @@ export async function generatePRD(
     const result = await response.json();
 
     if (!result.content) {
-      console.log("@/lib line 122");
       throw new Error("Failed to generate document");
     }
 
@@ -140,7 +139,6 @@ export async function generatePRD(
       format: params.outputFormat,
     };
   } catch (error) {
-    console.log("@/lib line 143");
     console.error("Error generating document:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to generate document",
